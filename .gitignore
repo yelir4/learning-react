@@ -1,0 +1,33 @@
+# Logs
+logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+lerna-debug.log*
+
+node_modules
+/tictactoe/node_modules
+.DS_Store
+# look how its ignoring our dist folder - this allows us to push the dist folder onto a separate subtree
+# building: git add dist -f
+# git commit -m "__"
+# git subtree push --prefix dist origin gh-pages
+dist
+dist-ssr
+coverage
+*.local
+
+/cypress/videos/
+/cypress/screenshots/
+
+# Editor directories and files
+.vscode/*
+!.vscode/extensions.json
+.idea
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
