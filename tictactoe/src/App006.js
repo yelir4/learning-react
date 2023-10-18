@@ -1,14 +1,15 @@
-// https://react.dev/learn/tutorial-tic-tac-toe#adding-time-travel
-// adding time travel
-// make it into a `Game` board
+// https://react.dev/learn/tutorial-tic-tac-toe#declaring-a-winner
+// declaring a winner
+// i mean at this point the tic tac toe game is completely functional
+// maybe add state to determine whether there's a tie
 
 // `npm install` to install dependencies
 // `npm start` to start a local server
 // opens in browser `localhost:3000`
 
 
-// we'll have to lift `Board` state up into the `Game`
-// so we can save game history, and move backwards in time
+// declare a winner based on the board state
+// create helper function `calculateWinner`
 
 // import the useState module from react
 import { useState } from "react";
@@ -28,8 +29,20 @@ function Square({value, onSquareClick})
 }
 
 // board class, holds the nine squares
-function Board({ xIsNext, squares, onPlay })
+export default function Board()
 {
+    // by default, `X` moves first
+    // add another piece of state to the `Board`
+    const [xIsNext, setXIsNext] = useState(true);
+
+    // create array of squares, all indexes `filled` with initial value `null`
+    // each entry in the array corresponds to Square[entry]
+    // ex: ['O', null, 'X', 'X', null, ...] etc.
+    const [squares, setSquares] = useState(Array(9).fill(null));
+
+    // constant for winner
+    const winner = calculateWinner(squares);
+
     // define handleClick here
     // `i` index of the square that we update
     // MAKE SURE WE FLIP THE VALUE OF `xIsNext`
@@ -38,9 +51,9 @@ function Board({ xIsNext, squares, onPlay })
         // initial check: if box has already been marked, return early
         // add here `calculateWinner` since returning early in that case
         // would also be nice (cant modify the board)
-        if (calculateWinner(squares) || squares[i])
+        if (squares[i] || calculateWinner(squares))
         {
-            return;
+            return; // returns if squares[i] already has a value (not null)
         }
 
         // `nextSquares` copy of squares array
@@ -57,12 +70,12 @@ function Board({ xIsNext, squares, onPlay })
             nextSquares[i] = "O";
         }
 
-        // call the onPlay function that `Game` passed to us
-        // pass it `nextSquares` as we're ready to change state
-        onPlay(nextSquares);
+        // `setSquares` passes the whole array size to update it
+        setSquares(nextSquares);
+        // set xIsNext here (flip)
+        setXIsNext(!xIsNext);
     }
 
-    const winner = calculateWinner(squares);
     // display winning text by adding `status` section to Board
     let status;
     // this only displays if there IS a winner (not if its NULL)
@@ -78,30 +91,30 @@ function Board({ xIsNext, squares, onPlay })
 
     return (
         <>
-            {/* define instances of `Square` component
+            {/* define instances of the `Square` component
                 pass `value` which is index of array above
 
                 `onClick` when `Button` is clicked, it asks
                 the `Board` class to do something `onSquareClick`
                 we use an arrow function that points to `handleClick`
-                so we pass index to `handleClick`
+                so we can pass square index to `handleClick`
                 and re-render the components
                 without causing an infinite loop
             */}
             <div className="board-row">
-                <Square value={squares[0]} onSquareClick={() => handleClick(0)} />
-                <Square value={squares[1]} onSquareClick={() => handleClick(1)} />
-                <Square value={squares[2]} onSquareClick={() => handleClick(2)} />
+                <Square value={squares[0]} onSquareClick={() => handleClick(0)}/>
+                <Square value={squares[1]} onSquareClick={() => handleClick(1)}/>
+                <Square value={squares[2]} onSquareClick={() => handleClick(2)}/>
             </div>
             <div className="board-row">
-                <Square value={squares[3]} onSquareClick={() => handleClick(3)} />
-                <Square value={squares[4]} onSquareClick={() => handleClick(4)} />
-                <Square value={squares[5]} onSquareClick={() => handleClick(5)} />
+                <Square value={squares[3]} onSquareClick={() => handleClick(3)}/>
+                <Square value={squares[4]} onSquareClick={() => handleClick(4)}/>
+                <Square value={squares[5]} onSquareClick={() => handleClick(5)}/>
             </div>
             <div className="board-row">
-                <Square value={squares[6]} onSquareClick={() => handleClick(6)} />
-                <Square value={squares[7]} onSquareClick={() => handleClick(7)} />
-                <Square value={squares[8]} onSquareClick={() => handleClick(8)} />
+                <Square value={squares[6]} onSquareClick={() => handleClick(6)}/>
+                <Square value={squares[7]} onSquareClick={() => handleClick(7)}/>
+                <Square value={squares[8]} onSquareClick={() => handleClick(8)}/>
             </div>
             {/* display the status here
                 note ` className="status" ` is nothing particular, just that
@@ -110,70 +123,6 @@ function Board({ xIsNext, squares, onPlay })
             <div className="status">{status}</div>
         </>
     );    
-}
-
-
-// `Game` top-level component
-export default function Game()
-{
-    // define some state: X vs O turn
-    const [xIsNext, setXIsNext] = useState(true);
-    // array of a single item which itself is array of 9 nulls
-    // that way we have an array for the nine different states
-    const [history, setHistory] = useState([Array(9).fill(null)]);
-    const currentSquares = history[history.length - 1]; // essentially an array of 9 null indexes
-
-    // handlePlay function, called by `Board` to update the game
-    // we call it `onPlay` in board
-    // passed `nextSquares` to update the state to
-    function handlePlay(nextSquares)
-    {
-        // update `history` using updated `squares` array as a new entry
-        // swap `xIsNext`
-        // `...history` creates new array with all items in history, followed by `nextSquares`
-        // etc "enumerate history"
-        // remember `history` is an array of arrays [ [null, null, null], [X, null, null] ]
-        setHistory([...history, nextSquares]);
-        setXIsNext(!xIsNext);
-    }
-
-    // jump to different moves in the history
-    function jumpTo(nextMove)
-    {
-        // todo
-    }
-
-    const moves = history.map((squares, move) => {
-        let description;
-        if (move > 0) // only consider after blank
-        {
-            description = 'Go to move #' + move;
-        }
-        else
-        {
-            description = 'Go to game start';
-        }
-        return (
-            <li>
-                <button onClick={() => jumpTo(move)}>
-                    {description}
-                </button>
-            </li>
-        );
-    });
-
-    return (
-        <div className="game">
-            <div className="game-board">
-                {/* pass properties to the Board component */}
-                <Board xIsNext={xIsNext} squares={currentSquares} onPlay={handlePlay} />
-            </div>
-            <div className="game-info">
-                {/* display the moves element we just created */}
-                <ol>{moves}</ol>
-            </div>
-        </div>
-    );
 }
 
 // new helper function

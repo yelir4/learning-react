@@ -9,6 +9,7 @@ lerna-debug.log*
 
 node_modules
 /tictactoe/node_modules
+/tictactoe/build
 .DS_Store
 # look how its ignoring our dist folder - this allows us to push the dist folder onto a separate subtree
 # building: git add dist -f
